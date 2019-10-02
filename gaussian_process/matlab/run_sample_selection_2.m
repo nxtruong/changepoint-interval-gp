@@ -1,4 +1,4 @@
-function run_sample_selection_2(PATH, cvfold, likname, resultpostfix)
+function run_sample_selection_2(PATH, cvfold, likname, max_samples, resultpostfix)
     % Sample selection based on Gaussian Process model
     % With only two features:
     % log.hall = log(variance estimate)
@@ -21,16 +21,19 @@ function run_sample_selection_2(PATH, cvfold, likname, resultpostfix)
     %
     % likname is either 'erf' or 'logistic' for the likelihood function
     %
+    % max_samples: Max number of samples to be selected
+    %
     % resultpostfix is an optional string that adds a postfix to the result
     % directory's name. Default is ''. Example: '_somepostfix'.
     
     assert(ischar(PATH) && ~isempty(PATH) && exist(PATH, 'dir'), 'Invalid path.');
     assert(ismember(lower(likname), {'erf', 'logistic'}), 'Unknown kernel name.');
+
+    if ~exist('max_samples', 'var'), max_samples = 10; end
+    assert(max_samples >= 8);
+    
     if ~exist('resultpostfix', 'var'), resultpostfix = ''; end
     assert(ischar(resultpostfix), 'resultpostfix must be a string.');
-        
-    % Max number of samples to be selected
-    max_samples = 80;
     
     % The result directory
     resultdirname = sprintf('sampleSelectionGP_%s%s', likname, resultpostfix);
