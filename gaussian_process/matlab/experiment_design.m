@@ -128,6 +128,7 @@ function [IdxSelected, result_accuracy, result_predictions, result_covfunc, resu
         if hasproblem
             disp('- Numerical problems with the GP model.');
             result_predictions{end+1} = [];
+            result_accuracy(end+1) = nan;
         else
             Y_pred = real(Y_pred(:));
             result_predictions{end+1} = Y_pred;
@@ -138,6 +139,7 @@ function [IdxSelected, result_accuracy, result_predictions, result_covfunc, resu
                 check_test = test_YL <= Y_pred & Y_pred <= test_YH;
                 accuracy = sum(check_test) / Ntest * 100;
             end
+            result_accuracy(end+1) = accuracy;
             
             fprintf('- Model Accuracy: %g\n', accuracy);
         end
