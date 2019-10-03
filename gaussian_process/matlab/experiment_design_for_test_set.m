@@ -112,7 +112,7 @@ function [IdxSelected, result_accuracy, result_predictions, result_covfunc, resu
         
         if hasproblem
             disp('- Numerical problems with the GP model.');
-            result_predictions{end+1} = [];
+            result_predictions{end+1} = nan(size(test_X,1),1);
             result_accuracy(end+1) = nan;
         else
             Y_pred = real(Y_pred(:));
