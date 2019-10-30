@@ -1,5 +1,5 @@
 function [train_inputs, train_outputs, test_inputs, test_outputs] = load_data(datadir, folddir, foldnum, rmchrom)
-    df_inputs = readtable([datadir '/inputs.csv']);
+    df_inputs = readtable([datadir '/inputs.csv'], 'Delimiter', ',', 'ReadVariableNames', true);
 
     % Remove columns "chr*"
     if rmchrom
@@ -8,12 +8,13 @@ function [train_inputs, train_outputs, test_inputs, test_outputs] = load_data(da
     end
 
     % The output data (Y - targets)
-    df_outputs = readtable([datadir '/outputs.csv']);
+    df_outputs = readtable([datadir '/outputs.csv'], 'Delimiter', ',', 'ReadVariableNames', true);
 
     % Load the fold data
-    df_folds = readtable([folddir '/folds.csv']);
+    df_folds = readtable([folddir '/folds.csv'], 'Delimiter', ',', 'ReadVariableNames', true);
 
     % Build a list of sequenceID with the given fold number
+    disp(df_folds);
     test_sequences = df_folds.sequenceID(df_folds.fold == foldnum);
     if isempty(test_sequences)
         error('No sequences with fold number $foldnum are available.');
