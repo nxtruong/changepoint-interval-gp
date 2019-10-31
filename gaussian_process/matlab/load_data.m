@@ -14,7 +14,7 @@ function [train_inputs, train_outputs, test_inputs, test_outputs] = load_data(da
     df_folds = readtable([folddir '/folds.csv'], 'Delimiter', ',', 'ReadVariableNames', true);
 
     % Build a list of sequenceID with the given fold number
-    disp(df_folds);
+    % disp(df_folds);
     test_sequences = df_folds.sequenceID(df_folds.fold == foldnum);
     if isempty(test_sequences)
         error('No sequences with fold number $foldnum are available.');

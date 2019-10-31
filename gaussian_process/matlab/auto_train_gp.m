@@ -10,6 +10,12 @@ function [meanfunc, covfunc, likfunc, hyp, accuracy, optimal_a] = auto_train_gp(
     Ntest = size(test_X, 1);
     D = size(seltrain_X, 2);
     
+    if isnumeric(seltrain_Y)
+        [meanfunc, covfunc, likfunc, hyp, accuracy] = train_for_lik(@likGauss, 0);
+        optimal_a = [];
+        return;
+    end
+    
     if ~exist('amax', 'var') || isempty(amax)
         assert(all(amin > 0));
         avalues = amin;

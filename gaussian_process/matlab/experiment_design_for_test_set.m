@@ -23,49 +23,73 @@ function [IdxSelected, result_accuracy, result_predictions, result_covfunc, resu
     Ntest = size(test_X,1);
 
     % Select random initial samples
-    % Find indices of samples with lower limit [YL is finite] and upper limit (YH is finite)
-    full_Ylimit = [full_Y.l];
-    idx_l = find(isfinite(full_Ylimit));
-    if ~isempty(idx_l)
-        [~, idx_lextreme] = max(full_Ylimit(idx_l));
-    end
-    
-    full_Ylimit = [full_Y.h];
-    idx_h = find(isfinite(full_Ylimit));
-    if ~isempty(idx_h)
-        [~, idx_hextreme] = min(full_Ylimit(idx_h));
-    end
-    
-    % Select random initial samples
-    IdxSelected = [];
-    if Ninithalf < 0
-        % First pair are extremes
+    if isnumeric(full_Y)
+        IdxSelected = [];
+        
+        if Ninithalf < 0
+            % First pair are extremes
+            [~,idx] = min(full_Y);
+            IdxSelected = [IdxSelected, idx];
+            
+            [~,idx] = max(full_Y);
+            IdxSelected = [IdxSelected, idx];
+            
+            Ninithalf = -Ninithalf - 1;
+            
+            % All the remaining samples
+            IdxRemaining = setdiff(1:N, IdxSelected);
+        else
+            IdxRemaining = 1:N;
+        end
+        
+        idx = randperm(length(IdxRemaining), Ninithalf*2);
+        IdxSelected = [IdxSelected, IdxRemaining(idx)];
+        IdxRemaining(idx) = [];
+    else
+        % Find indices of samples with lower limit [YL is finite] and upper limit (YH is finite)
+        full_Ylimit = [full_Y.l];
+        idx_l = find(isfinite(full_Ylimit));
         if ~isempty(idx_l)
-            IdxSelected = [IdxSelected, idx_l(idx_lextreme)];
-            idx_l(idx_lextreme) = [];
+            [~, idx_lextreme] = max(full_Ylimit(idx_l));
         end
+        
+        full_Ylimit = [full_Y.h];
+        idx_h = find(isfinite(full_Ylimit));
         if ~isempty(idx_h)
-            IdxSelected = [IdxSelected, idx_h(idx_hextreme)];
-            idx_h(idx_hextreme) = [];
+            [~, idx_hextreme] = min(full_Ylimit(idx_h));
         end
-        Ninithalf = -Ninithalf - 1;
+        
+        % Select random initial samples
+        IdxSelected = [];
+        if Ninithalf < 0
+            % First pair are extremes
+            if ~isempty(idx_l)
+                IdxSelected = [IdxSelected, idx_l(idx_lextreme)];
+                idx_l(idx_lextreme) = [];
+            end
+            if ~isempty(idx_h)
+                IdxSelected = [IdxSelected, idx_h(idx_hextreme)];
+                idx_h(idx_hextreme) = [];
+            end
+            Ninithalf = -Ninithalf - 1;
+        end
+        
+        for k = 1:Ninithalf
+            if ~isempty(idx_l)
+                idx = randi(length(idx_l), 1);
+                IdxSelected = [IdxSelected, idx_l(idx)];
+                idx_l(idx) = [];
+            end
+            if ~isempty(idx_h)
+                idx = randi(length(idx_h), 1);
+                IdxSelected = [IdxSelected, idx_h(idx)];
+                idx_h(idx) = [];
+            end
+        end
+        
+        % All the remaining samples
+        IdxRemaining = setdiff(1:N, IdxSelected);
     end
-    
-    for k = 1:Ninithalf
-        if ~isempty(idx_l)
-            idx = randi(length(idx_l), 1);
-            IdxSelected = [IdxSelected, idx_l(idx)];
-            idx_l(idx) = [];
-        end
-        if ~isempty(idx_h)
-            idx = randi(length(idx_h), 1);
-            IdxSelected = [IdxSelected, idx_h(idx)];
-            idx_h(idx) = [];
-        end
-    end
-
-    % All the remaining samples
-    IdxRemaining = setdiff(1:N, IdxSelected);
 
     result_predictions = {};
     result_accuracy = [];
