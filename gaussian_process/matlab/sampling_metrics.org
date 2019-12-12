@@ -1,0 +1,30 @@
+** Sampling methods
+
+Table of sampling methods.
+
+|---------------------+-------------------+---------------------------|
+|                     | Use GP model      | Not use GP model          |
+|---------------------+-------------------+---------------------------|
+| Use test inputs     | dist*, var*-dist* | eucldist*, var*-eucldist* |
+|---------------------+-------------------+---------------------------|
+| Not use test inputs | maxvar-train      | random                    |
+|---------------------+-------------------+---------------------------|
+
+- =maxvar-train=: select training sample with max predictive variance
+- =dist[min/ave]-[full/maxvar/topN]=: obtain a subset TEST of the test inputs (full: the entire set; maxvar: the test input with max predictive variance; topN: the N test inputs with highest variances); then select training sample that is closest to points in set TEST, where dist(x, TEST) is either the min or average of the distances from x to each point in TEST.  The point-to-point distance metric is determined by the GP kernel.
+- =eucldist*=: similar to =dist*= but the distance metric between two points is the standard Euclidean distance metric.
+- =var<alpha>-*dist*=: the sampling metric for a training input x is var(x)^alpha / *dist*(x), where =*dist*= is defined above.
+
+
+** Specify sampling methods
+A function like =run_baseline_sample_selection_2= will take two arguments for the sampling method: =samplingmetric= and =euclideandist=.
+
+|                               | =samplingmetric=                             | =euclideandist= |
+|-------------------------------+----------------------------------------------+-----------------|
+| maxvar-train                  | =samplingmetric_maxvartrain=                 | does not matter |
+| dist<type>-<N>                | =samplingmetric_vardist(~,~,~,0,type,N)=     | false           |
+| var<alpha>-dist<type>-<N>     | =samplingmetric_vardist(~,~,~,alpha,type,N)= | false           |
+| eucldist<type>-<N>            | =samplingmetric_vardist(~,~,~,0,type,N)=     | true            |
+| var<alpha>-eucldist<type>-<N> | =samplingmetric_vardist(~,~,~,alpha,type,N)= | true            |
+
+where =type= is a string 'min' or 'ave'; =N= is a number (0: full, 1: maxvar, >1: topN).

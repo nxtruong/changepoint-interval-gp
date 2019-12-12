@@ -1,4 +1,4 @@
-function run_baseline_sample_selection_2(PATH, cvfold, max_samples, resultpostfix)
+function run_baseline_sample_selection_2(PATH, cvfold, max_samples, resultpostfix, samplingmetric, euclideandist)
     % Baseline sample selection based on Gaussian Process model
     % It doesn't use an interval likelihood function but instead train the
     % GPs on data where scalar labels are generated from interval labels by
@@ -27,6 +27,14 @@ function run_baseline_sample_selection_2(PATH, cvfold, max_samples, resultpostfi
     %
     % resultpostfix is an optional string that adds a postfix to the result
     % directory's name. Default is ''. Example: '_somepostfix'.
+    %
+    % samplingmetric is a function to calculate the sample selection
+    % metric.
+    %
+    % euclideandist is whether Euclidean distance metric is used (default:
+    % false).
+    %
+    % See sampling_metrics.org for different options.
     
     assert(ischar(PATH) && ~isempty(PATH) && exist(PATH, 'dir'), 'Invalid path.');
 
@@ -35,6 +43,10 @@ function run_baseline_sample_selection_2(PATH, cvfold, max_samples, resultpostfi
     
     if ~exist('resultpostfix', 'var'), resultpostfix = ''; end
     assert(ischar(resultpostfix), 'resultpostfix must be a string.');
+    
+    if ~exist('samplingmetric', 'var'), samplingmetric = []; end
+    
+    if ~exist('euclideandist', 'var'), euclideandist = false; end
     
     % The result directory
     resultdirname = sprintf('sampleSelectionGP_%s%s', 'baseline', resultpostfix);
@@ -109,7 +121,7 @@ function run_baseline_sample_selection_2(PATH, cvfold, max_samples, resultpostfi
         Ninit = -2;
         
         %usetrainset = true;
-        [IdxSelected, result_accuracy, result_predictions, result_covfunc, result_meanfunc, result_likfunc, n_seq] = experiment_design_for_test_set(full_X, full_Y, test_X, test_YL, test_YH, max_samples, Ninit, @infGaussLik, 'erf');  % the likname = 'erf' does not really matter
+        [IdxSelected, result_accuracy, result_predictions, result_covfunc, result_meanfunc, result_likfunc, n_seq] = experiment_design_for_test_set(full_X, full_Y, test_X, test_YL, test_YH, max_samples, Ninit, @infGaussLik, 'erf', samplingmetric, euclideandist);  % the likname = 'erf' does not really matter
         
         % Save the results
         testfoldresultdir = fullfile(resultdir, int2str(testfold));
